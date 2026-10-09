@@ -1,8 +1,7 @@
 /* Payline service worker — offline-first app shell. */
 const CACHE = 'payline-v1';
 const ASSETS = [
-  './', './index.html', './style.css', './app.js', './manifest.json',
-  './icon.svg', './icon-192.png', './icon-512.png', './icon-180.png'
+  './', './index.html', './style.css', './app.js', './manifest.json', './icon.svg'
 ];
 
 self.addEventListener('install', e => {
