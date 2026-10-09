@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f0e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Payline">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Payline</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ CLOCK ============ -->
+  <section id="tab-clock" class="tab active">
+    <header class="appbar">
+      <div class="brand"><span class="brand-mark"></span>Payline</div>
+      <div class="appbar-sub" id="todayLabel"></div>
+    </header>
+
+    <div class="wage-row card">
+      <label for="wageInput">Hourly wage</label>
+      <div class="wage-field"><span>$</span><input id="wageInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+    </div>
+
+    <div class="card hero">
+      <div class="hero-top">
+        <span class="eyebrow">Earnings this shift</span>
+        <span id="tierBadge" class="tier-badge reg">Regular</span>
+      </div>
+      <div id="earnBig" class="earn-big">$0.00</div>
+      <div class="hero-meta">
+        <div><span class="muted">Elapsed</span><strong id="elapsedBig">0:00:00</strong></div>
+        <div><span class="muted">Rate now</span><strong id="rateNow">—</strong></div>
+      </div>
+      <div id="elapsedEditor" class="hidden">
+        <div class="form-grid">
+          <label>Hours<input id="eeH" type="number" inputmode="numeric" min="0" step="1"></label>
+          <label>Minutes<input id="eeM" type="number" inputmode="numeric" min="0" max="59" step="1"></label>
+        </div>
+        <div class="shift-controls" style="margin-top:10px">
+          <button id="eeSet" class="btn primary">Set time</button>
+          <button id="eeCancel" class="btn ghost">Cancel</button>
+        </div>
+      </div>
+      <div class="shift-controls">
+        <button id="btnStart" class="btn primary">Start shift</button>
+        <button id="btnPause" class="btn ghost hidden">Pause</button>
+        <button id="btnStop" class="btn danger-ghost hidden">End shift</button>
+      </div>
+      <label class="perdiem-line"><input type="checkbox" id="livePerDiem"><span>Per diem this shift</span>
+        <span class="pd-amt">$<input id="livePerDiemAmt" type="number" inputmode="decimal" min="0" step="0.01"></span>
+      </label>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today</div>
+      <div class="split-bars" id="todayBars"></div>
+      <div class="stat-grid">
+        <div><span class="muted">Hours</span><strong id="todayHours">0.00</strong></div>
+        <div><span class="muted">Earnings</span><strong id="todayEarn">$0.00</strong></div>
+        <div><span class="muted">Per diem</span><strong id="todayPD">$0.00</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title row"><span>This week</span><span class="muted small" id="weekRange"></span></div>
+      <div class="progress"><div id="weekBar"></div></div>
+      <div class="stat-grid">
+        <div><span class="muted">Hours</span><strong id="weekHours">0.00</strong></div>
+        <div><span class="muted">Earnings</span><strong id="weekEarn">$0.00</strong></div>
+        <div><span class="muted" id="weekOTLabel">To OT</span><strong id="weekOTLeft">—</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Totals</div>
+      <div class="stat-grid cols2">
+        <div><span class="muted" id="monthLabel">Month</span><strong id="monthEarn">$0.00</strong><span class="muted small" id="monthHours"></span></div>
+        <div><span class="muted" id="yearLabel">Year</span><strong id="yearEarn">$0.00</strong><span class="muted small" id="yearHours"></span></div>
+      </div>
+    </div>
+
+    <div class="card" id="backfillCard">
+      <div class="card-title row"><span>Catch up this week</span><span class="muted small">hours already worked</span></div>
+      <p class="fineprint" style="margin:0 0 6px">Started mid-week — or mid-day? Fill in earlier days, or hours already worked today, so your totals and overtime are right.</p>
+      <div id="backfillRows"></div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTION ============ -->
+  <section id="tab-project" class="tab">
+    <header class="appbar"><div class="brand"><span class="brand-mark"></span>Projection</div></header>
+
+    <div class="card">
+      <div class="card-title">What will I make?</div>
+      <div class="form-grid">
+        <label>Hours per day<input id="pjHrsDay" type="number" inputmode="decimal" min="0" step="0.25" value="8"></label>
+        <label>Days in period<input id="pjDays" type="number" inputmode="numeric" min="1" step="1" value="5"></label>
+        <label>Per diem / day<span class="inline">$<input id="pjPD" type="number" inputmode="decimal" min="0" step="0.01" value="0"></span></label>
+        <label>Wage override<span class="inline">$<input id="pjWage" type="number" inputmode="decimal" min="0" step="0.01" placeholder="uses settings"></span></label>
+      </div>
+      <label class="check-line"><input type="checkbox" id="pjIncludeWeek" checked><span>Include hours already worked this week</span></label>
+      <label class="check-line"><input type="checkbox" id="pjSpreadWeek" checked><span>Spread across this pay week (applies weekly OT)</span></label>
+    </div>
+
+    <div class="card hero">
+      <span class="eyebrow">Projected gross</span>
+      <div id="pjTotal" class="earn-big">$0.00</div>
+      <div class="split-bars" id="pjBars"></div>
+      <div class="stat-grid" id="pjStats"></div>
+      <p class="fineprint">Uses your Settings rules for overtime, double time and weekly thresholds.</p>
+    </div>
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section id="tab-history" class="tab">
+    <header class="appbar"><div class="brand"><span class="brand-mark"></span>History</div></header>
+    <div class="card">
+      <button id="btnManual" class="btn ghost full">+ Log a past shift</button>
+      <div id="manualForm" class="hidden">
+        <div class="form-grid">
+          <label>Date<input id="mDate" type="date"></label>
+          <label>Hours<input id="mHrs" type="number" inputmode="decimal" min="0" step="0.25" placeholder="8"></label>
+          <label>Wage ($)<input id="mWage" type="number" inputmode="decimal" min="0" step="0.01" placeholder="uses settings"></label>
+          <label>Per diem ($)<input id="mPD" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></label>
+        </div>
+        <button id="btnManualSave" class="btn primary full">Save shift</button>
+      </div>
+    </div>
+    <div id="historyList"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="tab-settings" class="tab">
+    <header class="appbar"><div class="brand"><span class="brand-mark"></span>Settings</div></header>
+
+    <div class="card">
+      <div class="card-title">Pay</div>
+      <div class="form-grid">
+        <label>Hourly wage ($)<input id="sWage" type="number" inputmode="decimal" min="0" step="0.01"></label>
+        <label>Regular hrs / day<input id="sRegHrs" type="number" inputmode="decimal" min="0" step="0.5"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Overtime</div>
+      <div class="form-grid">
+        <label>Overtime mode
+          <select id="sOtMode">
+            <option value="both">Daily &amp; weekly</option>
+            <option value="daily">Daily only</option>
+            <option value="weekly">Weekly only</option>
+          </select>
+        </label>
+        <label>OT multiplier<input id="sOtMult" type="number" inputmode="decimal" min="1" step="0.1"></label>
+        <label>Weekly OT after (hrs)<input id="sWeekOt" type="number" inputmode="decimal" min="0" step="0.5"></label>
+      </div>
+      <p class="fineprint">Daily &amp; weekly: OT after your regular hours each day, plus weekly OT past the threshold. Daily only: weekly threshold ignored. Weekly only: no daily OT — every hour counts toward the weekly threshold.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Double time</div>
+      <div class="form-grid">
+        <label>DT after (hrs / day)<input id="sDtAfter" type="number" inputmode="decimal" min="0" step="0.5"></label>
+        <label>DT multiplier<input id="sDtMult" type="number" inputmode="decimal" min="1" step="0.1"></label>
+      </div>
+      <p class="fineprint">Set to 0 to turn double time off.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Week &amp; per diem</div>
+      <div class="form-grid">
+        <label>Week starts
+          <select id="sWeekStart">
+            <option value="0">Sunday</option><option value="1">Monday</option>
+            <option value="2">Tuesday</option><option value="3">Wednesday</option>
+            <option value="4">Thursday</option><option value="5">Friday</option>
+            <option value="6">Saturday</option>
+          </select>
+        </label>
+        <label>Default per diem ($)<input id="sPD" type="number" inputmode="decimal" min="0" step="0.01"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Data</div>
+      <p class="fineprint">Everything is stored on this device only. Nothing leaves your phone.</p>
+      <button id="btnWipe" class="btn danger-ghost full">Erase all data</button>
+    </div>
+    <p class="fineprint center">Payline 1.0 · built for Jimmy</p>
+  </section>
+
+  <nav class="tabbar">
+    <button data-tab="clock" class="active"><i>◷</i><span>Clock</span></button>
+    <button data-tab="project"><i>◔</i><span>Project</span></button>
+    <button data-tab="history"><i>▤</i><span>History</span></button>
+    <button data-tab="settings"><i>⚙</i><span>Settings</span></button>
+  </nav>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
